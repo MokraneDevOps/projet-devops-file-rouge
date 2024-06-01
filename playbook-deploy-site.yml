@@ -32,61 +32,78 @@
         state: started
         enabled: yes
 
+
     - name: Create Docker Compose directory
       file:
-        path: /home/dalila/docker-compose-project
+        path: /home/vagrant/docker-compose-project
         state: directory
         mode: '0755'
 
     - name: Check if docker-compose.yaml exists
       stat:
-        path: /home/dalila/projet-file-rouge/docker-compose.yaml
-      register: docker_compose_yml
+        path: /home/vagrant/projet-devops-file-rouge/docker-compose.yaml
+      register: docker_compose_yaml
 
     - name: Copy docker-compose.yaml to target directory
       copy:
-        src: /home/dalila/projet-file-rouge/docker-compose.yaml
-        dest: /home/dalila/docker-compose-project/docker-compose.yaml
-      when: docker_compose_yml.stat.exists
+        src: /home/vagrant/projet-devops-file-rouge/docker-compose.yaml
+        dest: /home/vagrant/docker-compose-project/docker-compose.yaml
+      when: docker_compose_yaml.stat.exists
 
     - name: Check if Dockerfile exists
       stat:
-        path: /home/dalila/projet-file-rouge/Dockerfile
+        path: /home/vagrant/projet-devops-file-rouge/Dockerfile
       register: dockerfile
 
     - name: Copy Dockerfile to target directory
       copy:
-        src: /home/dalila/projet-file-rouge/Dockerfile
-        dest: /home/dalila/docker-compose-project/Dockerfile
+        src: /home/vagrant/projet-devops-file-rouge/Dockerfile
+        dest: /home/vagrant/docker-compose-project/Dockerfile
       when: dockerfile.stat.exists
 
     - name: Check if php directory exists
       stat:
-        path: /home/dalila/projet-file-rouge/php
+        path:  /home/vagrant/projet-devops-file-rouge/php
       register: php_dir
 
     - name: Copy application files to target directory
       copy:
-        src: /home/dalila/projet-file-rouge/php/
-        dest: /home/dalila/docker-compose-project/php/
+        src: /home/vagrant/projet-devops-file-rouge/php/
+        dest: /home/vagrant/docker-compose-project/php/
         mode: '0755'
         remote_src: yes
       when: php_dir.stat.exists
 
     - name: Check if stagiaires.sql exists
       stat:
-        path: /home/dalila/projet-file-rouge/stagiaires.sql
+        path: /home/vagrant/projet-devops-file-rouge/stagiaires.sql
       register: stagiaires_sql
 
     - name: Copy SQL file to target directory
       copy:
-        src: /home/dalila/projet-file-rouge/stagiaires.sql
-        dest: /home/dalila/docker-compose-project/stagiaires.sql
+        src: /home/vagrant/projet-devops-file-rouge/stagiaires.sql
+        dest: /home/vagrant/docker-compose-project/stagiaires.sql
         mode: '0644'
       when: stagiaires_sql.stat.exists
 
+    - name: Check if prometheus.yml exists
+      stat:
+        path: /home/vagrant/projet-devops-file-rouge/prometheus/prometheus.yml
+      register: prometheus_yml_exists
+
+    - name: Copy prometheus.yml to target directory
+      copy:
+        src: /home/vagrant/projet-devops-file-rouge/prometheus/prometheus.yml
+        dest: /home/vagrant/docker-compose-project/prometheus/prometheus.yml
+      when: prometheus_yml_exists.stat.exists
+
+    #- name: Run Docker Compose
+   #   community.docker.docker_compose:
+  #      project_src: /home/vagrant/docker-compose-project/docker-compose.yaml
+ #       state: present
+#        build: true
+
     - name: Run Docker Compose
-      community.docker.docker_compose:
-        project_src: /home/dalila/docker-compose-project
-        state: present
-        build: true
+      command: docker-compose -f /home/vagrant/docker-compose-project/docker-compose.yaml up -d
+      args:
+        chdir: /home/vagrant/projet-devops-file-rouge
