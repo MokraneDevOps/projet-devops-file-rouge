@@ -1,8 +1,5 @@
 version: '3.3'
 
-networks:
-  file_rouge:
-
 services:
   php:
     image: php:8.2-apache
@@ -46,3 +43,7 @@ services:
       - 8899:80
     networks:
       - file_rouge
+
+networks:
+  file_rouge:
+    external: true
