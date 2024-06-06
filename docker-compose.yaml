@@ -1,5 +1,8 @@
 version: '3.3'
 
+networks:
+  file_rouge:
+
 services:
   php:
     image: php:8.2-apache
@@ -11,6 +14,8 @@ services:
     build:
       context: .
       dockerfile: Dockerfile
+    networks:
+      - file_rouge
 
   db:
     image: mysql:8.0
@@ -25,6 +30,8 @@ services:
       - 3307:3306
     volumes:
       - ./stagiaires.sql:/docker-entrypoint-initdb.d/stagiaires.sql:ro
+    networks:
+      - file_rouge
 
   phpma:
     image: phpmyadmin/phpmyadmin
@@ -37,5 +44,5 @@ services:
       UPLOAD_LIMIT: 20M
     ports:
       - 8899:80
-      
- 
+    networks:
+      - file_rouge
