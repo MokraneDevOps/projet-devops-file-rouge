@@ -3,15 +3,20 @@ version: '3.3'
 services:
   php:
     image: php:8.2-apache
+    container_name: php82
     ports:
-      - target: 80
-        published: 8000
-        protocol: tcp
+      - 8000:80
+    volumes:
+      - ./php:/var/www/html
+    build:
+      context: .
+      dockerfile: Dockerfile
     networks:
       - file_rouge
 
   db:
     image: mysql:8.0
+    container_name: mysql8
     command: --default-authentication-plugin=mysql_native_password
     environment:
       MYSQL_ROOT_PASSWORD: pass
@@ -19,14 +24,15 @@ services:
       MYSQL_USER: test
       MYSQL_PASSWORD: pass
     ports:
-      - target: 3306
-        published: 3307
-        protocol: tcp
+      - 3307:3306
+    volumes:
+      - ./stagiaires.sql:/docker-entrypoint-initdb.d/stagiaires.sql:ro
     networks:
       - file_rouge
 
   phpma:
     image: phpmyadmin/phpmyadmin
+    container_name: phpmyadmin
     environment:
       PMA_ARBITRARY: 1
       PMA_HOST: db
@@ -34,12 +40,10 @@ services:
       PMA_PASSWORD: pass
       UPLOAD_LIMIT: 20M
     ports:
-      - target: 80
-        published: 8899
-        protocol: tcp
+      - 8899:80
     networks:
       - file_rouge
 
 networks:
   file_rouge:
-    driver: overlay
+    external: true
